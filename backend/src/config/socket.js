@@ -20,8 +20,11 @@ function parseCookieHeader(cookieHeader = "") {
 }
 
 function getAllowedOrigins() {
-  return (process.env.FRONTEND_URL || "http://localhost:5173")
-    .split(",")
+  return [
+    "http://localhost:5173",
+    ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",") : []),
+    ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : []),
+  ]
     .map((origin) => origin.trim())
     .filter(Boolean);
 }

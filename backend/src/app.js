@@ -6,8 +6,12 @@ import authRoutes from "./routes/auth.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 
 const app = express();
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
-  .split(",")
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",") : []),
+  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : []),
+]
   .map((origin) => origin.trim())
   .filter(Boolean);
 
@@ -19,7 +23,13 @@ app.use(cookieParser());
 // CORS
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Not allowed by CORS: ${origin}`));
+      }
+    },
     credentials: true,
   })
 );
